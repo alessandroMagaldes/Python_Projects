@@ -2,11 +2,17 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium import webdriver
 from bs4 import BeautifulSoup
 from datetime import date
+import urllib.request
+import urllib.error
+import pdfplumber
+import os
 import re
 
-day = None
-month = None
-year = None
+
+data = date.today()
+day = str(data.day).zfill(2) if data.day < 10 else str(data.day)
+month, year = str(data.month), str(data.year)
+
 cidade = None
 cidades = ['Curitiba', 'Maringá', 'Londrina', 'Cascavel', 'Foz do Iguaçu']
 ceasa_url = None
@@ -23,13 +29,18 @@ links_cities = {
     'Londrina': None,
     'Cascavel': None,
     'Foz do Iguaçu': None}
-actual_links = {
+today_links = {
     'Curitiba': None,
     'Maringá': None,
     'Londrina': None,
     'Cascavel': None,
     'Foz do Iguaçu': None}
-
+pdf_cities = {
+    'Curitiba': None,
+    'Maringá': None,
+    'Londrina': None,
+    'Cascavel': None,
+    'Foz do Iguaçu': None}
 #
 class Explorer:
     def __init__(self):
@@ -61,10 +72,6 @@ class Explorer:
 
 
 #Variáveis estruturais - torná-las funções mais simples
-def actualDateFormmat():
-    data = date.today()
-    day = str(data.day).zfill(2) if data.day < 10 else str(data.day)
-    month, year = str(data.month), str(data.year)
 
 def extractHtmlCidades():
     
@@ -105,10 +112,10 @@ def getPatterns(dia, mes, ano):
 
 def getLinkCities(padroes):
     for padrao in padroes:
-        for cidade in actual_links:
+        for cidade in today_links:
             for link in links_cities[cidade]:
                 if padrao in link:
-                    actual_links[cidade] = link
+                    today_links[cidade] = link
 
 def rascunho_lista(algo):
     with open('rascunho.txt', 'w', encoding='utf-8') as file:
@@ -125,7 +132,6 @@ def rascunho(algo):
 
 #main
 
-day, month, year = actualDateFormmat()
 explorer = Explorer()
 explorer.open()
 explorer.loadPage(f"https://www.ceasa.pr.gov.br/Pagina/Cotacao-Diaria-de-Precos-{year}")
@@ -134,5 +140,42 @@ extractHtmlCidades()
 extractLinks()
 padroes = getPatterns(day, month, year)
 getLinkCities(padroes)
+
+padrao = r'^\b[A-Z]+\b .*' #Padrão dos subgrupos dos produtos
+
+
+for cidade in cidades: #solicita ao navegador o download das cotações e adiciona em today_links
+    url = today_links.get(cidade)  # Obtendo o link da cidade a partir do dicionário
+    if url:
+        local_file = f"{cidade}.pdf"  # Nome do arquivo local, você pode ajustar conforme necessário
+        try:
+            with urllib.request.urlopen(url) as response, open(local_file, 'wb') as out_file:
+                out_file.write(response.read())
+            print(f"Arquivo baixado com sucesso como '{local_file}' para a cidade {cidade}")
+        except urllib.error.URLError as e:
+            print(f"Erro ao solicitar o arquivo para a cidade {cidade}: {e}")
+    else:
+        print(f"Link para a cidade {cidade} não encontrado.")
+
+for cidade in pdf_cities:
+    url = today_links.get(cidade)  # Obtendo o link da cidade a partir do dicionário
+    if url:
+        local_directory = f"{cidade}.pdf"  # Nome do arquivo local, ajustado conforme necessário
+        if os.path.exists(local_directory):  # Verifica se o arquivo existe localmente
+            with pdfplumber.open(local_directory) as pdf:
+                all_text = ''
+                for page in pdf.pages:
+                    text = page.extract_text()
+                    all_text += text + '\n'  # Adiciona o texto da página atual ao texto acumulado
+                pdf_cities[cidade] = all_text  # Atualiza o dicionário com o texto extraído
+                print(f"Texto extraído do PDF '{local_directory}' para a cidade {cidade}:\n{all_text}")
+        else:
+            print(f"Arquivo para a cidade {cidade} não encontrado localmente.")
+    else:
+        print(f"Link para a cidade {cidade} não encontrado.")
+
+
+# Encontrar todas as linhas correspondentes ao padrão
+linhas_produtos = re.findall(padrao, pdf_cities['Curitiba'], re.MULTILINE)
 
 

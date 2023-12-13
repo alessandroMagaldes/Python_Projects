@@ -1,66 +1,44 @@
-﻿# Ceasa - Cotação Diária de Preços
+﻿# Automação de Extração de Dados da CEASA Paraná
 
-# RADAR
+Este repositório contém um script Python desenvolvido para automatizar a extração de informações de preços diários da CEASA (Centrais de Abastecimento do Estado do Paraná) para diferentes cidades.
 
-1. Coletar todo o histórico de cotações do CEASA
+## Descrição
 
-    1.a - Coletar links da página e filtrar pelos links que sejam de PDF
-        Beatifulsoup - html
-        find_all('a', href=lambda href: href and href.startswith("https://www.ceasa.pr.gov.br/sites/ceasa/arquivos_restritos/files/documento"))
+O código Python disponibilizado faz uso das seguintes bibliotecas:
+- `webdriver_manager` para gerenciamento do driver do navegador Chrome.
+- `selenium` para automação do navegador web.
+- `bs4` (BeautifulSoup) para analisar o HTML das páginas web.
+- `datetime` para manipulação de datas.
+- `re` para expressões regulares.
 
-2. Criar localizador de links PDF de cotações através de um algoritmo que simule os padrões e gere o link
-    2.a - Padrões: 
-            cotacaopdf02022023.pdf = ddmmaaaa
-            maagosto10082023.pdf = ddmmaaaa
-            fevereiro27022023.pdf ddmmaaaa
-            abril03042023.pdf = ddmmaaaa
-            cotacao_01_fev_2023.pdf = dd_mês(3 caracteres)_aaaa
-            cotacao_01_agosto_2023.pdf = dd_mês_aaaa
-            imprensa_17_janeiro_2023.pdf = dd_mês_aaaa
-            cotacao_diaria_10_maio_2023.pdf = dd_mês_aaaa
-            cotacaodiariacascavel03outubro2023.pdf = ddmêsaaaa
+### Funcionalidades Principais
 
-    2.b - Comuns:
-            ddmmaaaa
-            dd_mês(3 char)_aaaa
-            dd_mês_aaaa
+1. **Classe Explorer:**
+   - Inicialização de um navegador Chrome utilizando o `webdriver_manager` e `selenium`.
+   - Carregamento de páginas web.
+   - Extração do HTML das páginas visitadas.
 
-    3.b - Algoritmos
-    
+2. **Funções de Extração de Dados:**
+   - `actualDateFormmat()`: Formata a data atual.
+   - `extractHtmlCidades()`: Extrai o HTML relacionado às cidades de interesse.
+   - `extractLinks()`: Extrai os links das páginas relevantes.
+   - `getPatterns()`: Gera padrões de busca para datas.
+   - `getLinkCities()`: Obtém os links das cidades conforme os padrões estabelecidos.
 
+### Variáveis
 
+O código utiliza variáveis para armazenar informações como a data atual, URLs, padrões de busca e links relevantes para as cidades de Curitiba, Maringá, Londrina, Cascavel e Foz do Iguaçu.
 
-b. Salvar todo o histórico do CEASA em um banco
-c. Criar aplicativo para visualização dos dados e estatísticas
+### Execução do Código
 
-# LOG
+TO - DO
 
-# APLICAÇÕES FUTURAS
+## Utilização
 
+TO - DO
 
+## Contribuição
 
-
-# Resultado do TDD - TESTES
-'''
-Tentar outra abordagem para coletar o link de uma página
-
-modelos
-junho05072023.pdf
-abril03042023.pdf
-cotacao_06_julho_2023.pdf
-cotacaodiaria_18_maio_2023_0.pdf
-cotacaodiariacascavel23outubro2023.pdf
-cotacaopdf06112023.pdf
-imprensa_17_janeiro_2023.pdf
-
-O que há e comum é que todos indicam a data completa no link, sendo os formatos:
-1. ddmmaaaa
-2. dd_mês_aaaa
-3. ddmêsaaaa
-
-Ou seja, usando as três possibilidades abaixo, consigo procurar pelos valores do link:
-elemento = a
-atributo = href
-
-'''
-
+Se deseja contribuir com melhorias, correções ou novas funcionalidades, sinta-se à vontade para abrir uma issue ou enviar um pull request.
+---
+Este código foi desenvolvido como parte de um projeto para facilitar a obtenção de informações de preços da CEASA Paraná de forma automatizada. Qualquer contribuição ou sugestão para aprimoramento é bem-vinda!
