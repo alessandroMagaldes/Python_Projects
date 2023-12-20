@@ -98,7 +98,7 @@ def inip2(n):
       break
 
   return num
-
+  
 
 def test(obtido, esperado):
   if obtido == esperado:
